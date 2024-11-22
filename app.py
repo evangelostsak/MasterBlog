@@ -55,11 +55,42 @@ def delete(post_id):
     """Adding delete option for a post"""
     blog_posts = load_posts()
 
+    # Find the blog post with the given id and remove it from the list
     blog_posts = [post for post in blog_posts if post['id'] != post_id]
 
     save_posts(blog_posts)
-
+    # Redirect back to the home page
     return redirect(url_for('index'))
+
+
+@app.route('/update/<int:post_id>', methods=['GET', 'POST'])
+def update(post_id):
+    """Update function for a post"""
+
+    # Fetch the blog posts from the JSON file
+    blog_posts = load_posts()
+
+    post = next((post for post in blog_posts if post['id'] == post_id), None)
+
+    if post is None:
+        # Post not found
+        return "Post not found", 404
+
+    if request.method == 'POST':
+        # Update the post in the JSON file
+        post['author'] = request.form.get('author', post['author'])
+        post['title'] = request.form.get('title', post['title'])
+        post['content'] = request.form.get('content', post['content'])
+
+        save_posts(blog_posts)
+
+        # Redirect back to index
+        return redirect(url_for('index'))
+
+        # Else, it's a GET request
+        # So display the update.html page
+
+    return render_template('update.html', post=post)
 
 
 if __name__ == '__main__':
