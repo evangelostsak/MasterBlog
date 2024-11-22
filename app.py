@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 
 def load_posts():
+    """Loading the json file"""
     try:
         with open('blog_posts.json', 'r', encoding='utf-8') as file:
             return json.load(file)
@@ -13,18 +14,24 @@ def load_posts():
 
 
 def save_posts(posts):
+    """Saving to json file"""
     with open('blog_posts.json', 'w', encoding='utf-8') as file:
         return json.dump(posts, file, indent=4)
 
 
 @app.route('/')
 def index():
+    """Rendering the index template
+    Homepage"""
     blog_posts = load_posts()
     return render_template('index.html', posts=blog_posts)
 
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
+    """Add option for a post
+    User can choose author, title
+    and the content"""
     if request.method == 'POST':
         blog_posts = load_posts()
 
@@ -41,6 +48,18 @@ def add():
         return redirect(url_for('index'))
 
     return render_template('add.html')
+
+
+@app.route('/delete/<int:post_id>')
+def delete(post_id):
+    """Adding delete option for a post"""
+    blog_posts = load_posts()
+
+    blog_posts = [post for post in blog_posts if post['id'] != post_id]
+
+    save_posts(blog_posts)
+
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
