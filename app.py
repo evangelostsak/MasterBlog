@@ -40,7 +40,8 @@ def add():
             'id': id_gen,
             'author': request.form.get('author'),
             'title': request.form.get('title'),
-            'content': request.form.get('content')
+            'content': request.form.get('content'),
+            'likes': 0
         }
         blog_posts.append(new_post)
         save_posts(blog_posts)
@@ -93,5 +94,25 @@ def update(post_id):
     return render_template('update.html', post=post)
 
 
+@app.route('/like/<int:post_id>', methods=['POST'])
+def like(post_id):
+    """Like button for posts"""
+    # Fetch the blog posts from the JSON file
+    blog_posts = load_posts()
+
+    post = next((post for post in blog_posts if post['id'] == post_id), None)
+    if post is None:
+        # post not found
+        return "Post not found", 404
+
+    # Updating likes
+    post['likes'] += 1
+
+    save_posts(blog_posts)
+
+    # Redirect back to the index page
+    return redirect(url_for('index'))
+
+
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
